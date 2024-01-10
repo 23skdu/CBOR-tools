@@ -1,11 +1,11 @@
-# perl-tool-template
+# CBOR tool to encode, decode and tag strings (from input or strings in files like logs)
 #Build the tool into a docker and run from there
 ```
-$ docker build -t tool:0.1 .
+$ docker build -t cbor-tool:0.1 .
 ```
 ## then
 ```
-perl-tool-template $ docker run tool:0.1 tool
+$ docker run cbor-tool:0.1 /tool
 ERR: Must specify action(-a)
-Actions: SomeFunction 
+Actions: Encode Decode Tag
 ````
