@@ -266,9 +266,11 @@ func unmarshalCBOR(data []byte, v any) error {
 }
 
 type errorReader struct{}
+
 func (errorReader) Read([]byte) (int, error) { return 0, os.ErrInvalid }
 
 type errorWriter struct{}
+
 func (errorWriter) Write([]byte) (int, error) { return 0, os.ErrInvalid }
 
 func TestEncodeValueError(t *testing.T) {
@@ -306,6 +308,37 @@ func TestReadStringInputReadError(t *testing.T) {
 func TestWriteOutputStdoutError(t *testing.T) {
 	t.Parallel()
 	if err := WriteOutput("", []byte("x"), errorWriter{}); err == nil {
+		t.Fatal("expected err")
+	}
+}
+func TestReadInputTooLargeStdin(t *testing.T) {
+	t.Parallel()
+	data := bytes.Repeat([]byte("a"), MaxInputBytes+1)
+	if _, err := ReadInput("", bytes.NewReader(data)); err == nil {
+		t.Fatal("expected err")
+	}
+}
+
+func TestReadInputTooLargeFile(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	p := filepath.Join(dir, "big.bin")
+	f, err := os.Create(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// write MaxInputBytes+1 bytes in chunks to avoid huge memory? Still size.
+	chunk := bytes.Repeat([]byte("a"), 1<<20)
+	written := 0
+	for written <= MaxInputBytes {
+		n, err := f.Write(chunk)
+		if err != nil {
+			t.Fatal(err)
+		}
+		written += n
+	}
+	f.Close()
+	if _, err := ReadInput(p, nil); err == nil {
 		t.Fatal("expected err")
 	}
 }

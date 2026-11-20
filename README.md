@@ -37,7 +37,7 @@ cbor-tool -a Decode -f data.cbor
 cbor-tool -a Tag -t 42 -s 'hello'
 ```
 
-See [docs/cli.md](docs/cli.md) for the full CLI reference.
+See [docs/cli.md](docs/cli.md) for the full CLI reference and [docs/cbor.md](docs/cbor.md) for a CBOR overview.
 
 ## Docker
 

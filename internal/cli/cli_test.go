@@ -314,3 +314,19 @@ func TestTagReadError(t *testing.T) {
 		t.Fatalf("err=%s", err)
 	}
 }
+func TestVersionFlag(t *testing.T) {
+	old := Version
+	Version = "test-version"
+	defer func() { Version = old }()
+	rc, out, _ := runCLI(t, []string{"-version"}, "")
+	if rc != 0 {
+		t.Fatalf("rc=%d", rc)
+	}
+	if !strings.Contains(out, "test-version") {
+		t.Fatalf("out=%s", out)
+	}
+	rc, out, _ = runCLI(t, []string{"-v"}, "")
+	if rc != 0 || !strings.Contains(out, "test-version") {
+		t.Fatalf("rc=%d out=%s", rc, out)
+	}
+}

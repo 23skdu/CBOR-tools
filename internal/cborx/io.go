@@ -6,6 +6,9 @@ import (
 	"os"
 )
 
+// MaxInputBytes is the maximum number of bytes ReadInput will read from stdin.
+const MaxInputBytes = 10 << 20
+
 // ReadInput reads input bytes from path when it is non-empty, otherwise from r.
 func ReadInput(path string, r io.Reader) ([]byte, error) {
 	if path != "" {
@@ -13,11 +16,17 @@ func ReadInput(path string, r io.Reader) ([]byte, error) {
 		if err != nil {
 			return nil, fmt.Errorf("%w: %v", ErrReadInput, err)
 		}
+		if len(data) > MaxInputBytes {
+			return nil, fmt.Errorf("%w: input too large", ErrReadInput)
+		}
 		return data, nil
 	}
-	data, err := io.ReadAll(r)
+	data, err := io.ReadAll(io.LimitReader(r, MaxInputBytes+1))
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrReadInput, err)
+	}
+	if len(data) > MaxInputBytes {
+		return nil, fmt.Errorf("%w: input too large", ErrReadInput)
 	}
 	return data, nil
 }

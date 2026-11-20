@@ -10,6 +10,9 @@ import (
 	"github.com/23skdu/cbor-tools/internal/cborx"
 )
 
+// Version is the build version. It may be overridden by the main package.
+var Version = "dev"
+
 // Run parses args and executes the requested action, writing to the provided
 // streams. It returns a process exit code.
 func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
@@ -21,9 +24,16 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	str := fs.String("s", "", "input string (for Encode)")
 	tag := fs.String("t", "", "CBOR tag number (for Tag)")
 	out := fs.String("o", "", "output file path (default: stdout)")
+	version := fs.Bool("version", false, "print version and exit")
+	versionShort := fs.Bool("v", false, "print version and exit (shorthand)")
 
 	if err := fs.Parse(args); err != nil {
 		return 2
+	}
+
+	if *version || *versionShort {
+		_, _ = fmt.Fprintf(stdout, "cbor-tool %s\n", Version)
+		return 0
 	}
 
 	if *action == "" {
