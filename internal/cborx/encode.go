@@ -32,13 +32,27 @@ func Decode(data []byte) (any, error) {
 	return v, nil
 }
 
-// DecodeJSON decodes CBOR data and returns its JSON representation.
+// DecodeJSON decodes CBOR data and returns its pretty JSON representation.
 func DecodeJSON(data []byte) ([]byte, error) {
 	v, err := Decode(data)
 	if err != nil {
 		return nil, err
 	}
 	out, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return nil, ErrDecodeFailed
+	}
+	out = append(out, '\n')
+	return out, nil
+}
+
+// DecodeCompactJSON decodes CBOR data and returns its compact JSON representation.
+func DecodeCompactJSON(data []byte) ([]byte, error) {
+	v, err := Decode(data)
+	if err != nil {
+		return nil, err
+	}
+	out, err := json.Marshal(v)
 	if err != nil {
 		return nil, ErrDecodeFailed
 	}

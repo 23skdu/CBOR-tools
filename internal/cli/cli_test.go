@@ -330,3 +330,31 @@ func TestVersionFlag(t *testing.T) {
 		t.Fatalf("rc=%d out=%s", rc, out)
 	}
 }
+
+func TestDecodeFormatJSON(t *testing.T) {
+	enc := []byte{0x62, 'h', 'i'}
+	dir := t.TempDir()
+	p := filepath.Join(dir, "in.cbor")
+	_ = os.WriteFile(p, enc, 0o600)
+	rc, out, _ := runCLI(t, []string{"-a", "Decode", "-f", p, "-format", "json"}, "")
+	if rc != 0 {
+		t.Fatalf("rc=%d", rc)
+	}
+	if strings.TrimSpace(out) != `"hi"` {
+		t.Fatalf("out=%s", out)
+	}
+}
+
+func TestDecodeFormatInvalid(t *testing.T) {
+	enc := []byte{0x62, 'h', 'i'}
+	dir := t.TempDir()
+	p := filepath.Join(dir, "in.cbor")
+	_ = os.WriteFile(p, enc, 0o600)
+	rc, _, err := runCLI(t, []string{"-a", "Decode", "-f", p, "-format", "xml"}, "")
+	if rc != 1 {
+		t.Fatalf("rc=%d", rc)
+	}
+	if !strings.Contains(err, "invalid format") {
+		t.Fatalf("err=%s", err)
+	}
+}

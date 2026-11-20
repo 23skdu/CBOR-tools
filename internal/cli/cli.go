@@ -24,6 +24,7 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	str := fs.String("s", "", "input string (for Encode)")
 	tag := fs.String("t", "", "CBOR tag number (for Tag)")
 	out := fs.String("o", "", "output file path (default: stdout)")
+	format := fs.String("format", "pretty", "output format for Decode: pretty or json")
 	version := fs.Bool("version", false, "print version and exit")
 	versionShort := fs.Bool("v", false, "print version and exit (shorthand)")
 
@@ -64,12 +65,21 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		rc = 0
 
 	case "Decode":
+		if *format != "pretty" && *format != "json" {
+			_, _ = fmt.Fprintf(stderr, "Error: invalid format: %s\n", *format)
+			return 1
+		}
 		data, err := cborx.ReadInput(*file, stdin)
 		if err != nil {
 			_, _ = fmt.Fprintf(stderr, "Error: %v\n", err)
 			return 1
 		}
-		jsonOut, err := cborx.DecodeJSON(data)
+		var jsonOut []byte
+		if *format == "json" {
+			jsonOut, err = cborx.DecodeCompactJSON(data)
+		} else {
+			jsonOut, err = cborx.DecodeJSON(data)
+		}
 		if err != nil {
 			_, _ = fmt.Fprintf(stderr, "Error: %v\n", err)
 			return 1

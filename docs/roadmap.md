@@ -13,24 +13,24 @@ This roadmap tracks remaining work for CBOR-tools after the initial Go rewrite.
 
 ## Stage 2: Security hardening
 
-- [ ] Pin GitHub Actions to commit SHAs
-- [ ] Add Trivy container/filesystem scan workflow
+- [x] Pin GitHub Actions to commit SHAs
+- [x] Add Trivy container scan workflow
 - [ ] Generate and publish SBOM (Syft/CycloneDX)
-- [ ] Add CodeQL analysis workflow
+- [x] Add CodeQL analysis workflow
 - [ ] Harden file access with `os.Root` where practical
-- [ ] Add dependency review workflow
+- [x] Add dependency review workflow
 
 ## Stage 3: Release automation
 
-- [ ] Add GoReleaser configuration
-- [ ] Add release workflow on tags
-- [ ] Produce cross-platform binaries
+- [x] Add GoReleaser configuration
+- [x] Add release workflow on tags
+- [x] Produce cross-platform binaries
 - [ ] Publish Docker images to registry
 - [ ] Generate checksums and signatures
 
 ## Stage 4: CLI enhancements
 
-- [ ] Add `--format` output option (json, pretty, raw)
+- [x] Add `--format` output option (pretty, json)
 - [ ] Add atomic output file writes
 - [ ] Add shell completion generation
 - [ ] Add man page generation
@@ -48,5 +48,5 @@ This roadmap tracks remaining work for CBOR-tools after the initial Go rewrite.
 
 - [ ] Add man page
 - [ ] Add usage examples directory
-- [ ] Add issue and PR templates
-- [ ] Add CODEOWNERS
+- [x] Add issue and PR templates
+- [x] Add CODEOWNERS

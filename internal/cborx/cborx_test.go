@@ -323,7 +323,7 @@ func TestReadInputTooLargeFile(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
 	p := filepath.Join(dir, "big.bin")
-	f, err := os.Create(p)
+	f, err := os.Create(p) // #nosec G304
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -337,8 +337,40 @@ func TestReadInputTooLargeFile(t *testing.T) {
 		}
 		written += n
 	}
-	f.Close()
+	_ = f.Close()
 	if _, err := ReadInput(p, nil); err == nil {
 		t.Fatal("expected err")
+	}
+}
+
+func TestDecodeCompactJSONError(t *testing.T) {
+	t.Parallel()
+	data, err := EncodeValue(math.NaN())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := DecodeCompactJSON(data); err != ErrDecodeFailed {
+		t.Fatalf("want ErrDecodeFailed, got %v", err)
+	}
+}
+func TestDecodeCompactJSONSuccess(t *testing.T) {
+	t.Parallel()
+	data, _ := EncodeString("hi")
+	out, err := DecodeCompactJSON(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(out) != "\"hi\"\n" {
+		t.Fatalf("got %q", out)
+	}
+}
+
+func TestDecodeCompactJSONDecodeError(t *testing.T) {
+	t.Parallel()
+	if _, err := DecodeCompactJSON([]byte{0xff}); err != ErrDecodeFailed {
+		// Decode returns ErrDecodeFailed
+		if err == nil {
+			t.Fatal("expected err")
+		}
 	}
 }
