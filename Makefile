@@ -20,6 +20,12 @@ fuzz:
 		$(GO) test -run=$$t -fuzz=$$t -fuzztime=30s ./internal/cborx/; \
 	done
 
+fuzz-ci:
+	@set -e; for t in $$( $(GO) test -list '^Fuzz' ./internal/cborx/ | grep '^Fuzz'); do \
+		echo "Fuzzing $$t"; \
+		$(GO) test -run=$$t -fuzz=$$t -fuzztime=10s ./internal/cborx/; \
+	done
+
 cover:
 	$(GO) test -coverprofile=coverage.out $(PKG)
 	$(GO) tool cover -func=coverage.out
