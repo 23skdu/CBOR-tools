@@ -1,7 +1,11 @@
-FROM debian:trixie-slim
-LABEL author=23skdu@users.noreply.github.com
-RUN set -x \
-    && apt update && apt upgrade -y && apt install -y build-essential \ 
-    && cpan install CBOR::Free && rm -rf /root/.cpan && apt remove -y build-essential 
-COPY tool /
-CMD ["/usr/bin/perl","-e", "print 'works';"] 
+# syntax=docker/dockerfile:1
+FROM golang:1.27.4-alpine AS build
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o /out/cbor-tool ./cmd/cbor-tool
+
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=build /out/cbor-tool /cbor-tool
+ENTRYPOINT ["/cbor-tool"]
