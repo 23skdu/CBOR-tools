@@ -4,7 +4,8 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o /out/cbor-tool ./cmd/cbor-tool
+ARG VERSION=dev
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w -X main.version=${VERSION}" -o /out/cbor-tool ./cmd/cbor-tool
 
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /out/cbor-tool /cbor-tool

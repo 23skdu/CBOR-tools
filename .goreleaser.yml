@@ -23,6 +23,23 @@ archives:
         format: zip
 checksum:
   name_template: "checksums.txt"
+# CycloneDX SBOM for every published archive, generated with Syft.
+sboms:
+  - artifacts: archive
+    args:
+      - "$artifact"
+      - "--output"
+      - "cyclonedx-json=$document"
+# Keyless cosign signature for the checksum file, which covers every artifact.
+signs:
+  - cmd: cosign
+    signature: "${artifact}.sigstore.json"
+    args:
+      - sign-blob
+      - "--bundle=${signature}"
+      - "${artifact}"
+      - "--yes"
+    artifacts: checksum
 snapshot:
   version_template: "{{ incpatch .Version }}-next"
 changelog:

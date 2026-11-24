@@ -155,7 +155,7 @@ func TestReadInputFile(t *testing.T) {
 	if err := os.WriteFile(p, []byte("abc"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	got, err := ReadInput(p, strings.NewReader("ignored"))
+	got, err := ReadInput(nil, p, strings.NewReader("ignored"))
 	if err != nil || string(got) != "abc" {
 		t.Fatalf("got %q err %v", got, err)
 	}
@@ -163,7 +163,7 @@ func TestReadInputFile(t *testing.T) {
 
 func TestReadInputStdin(t *testing.T) {
 	t.Parallel()
-	got, err := ReadInput("", strings.NewReader("stdin-data"))
+	got, err := ReadInput(nil, "", strings.NewReader("stdin-data"))
 	if err != nil || string(got) != "stdin-data" {
 		t.Fatalf("got %q err %v", got, err)
 	}
@@ -171,25 +171,25 @@ func TestReadInputStdin(t *testing.T) {
 
 func TestReadInputMissing(t *testing.T) {
 	t.Parallel()
-	if _, err := ReadInput("/no/such/file", nil); err == nil {
+	if _, err := ReadInput(nil, "/no/such/file", nil); err == nil {
 		t.Fatal("expected err")
 	}
 }
 
 func TestReadStringInput(t *testing.T) {
 	t.Parallel()
-	s, err := ReadStringInput("direct", "", nil)
+	s, err := ReadStringInput(nil, "direct", "", nil)
 	if err != nil || s != "direct" {
 		t.Fatalf("got %q err %v", s, err)
 	}
 	dir := t.TempDir()
 	p := filepath.Join(dir, "in.txt")
 	_ = os.WriteFile(p, []byte("fromfile"), 0o600)
-	s, err = ReadStringInput("", p, nil)
+	s, err = ReadStringInput(nil, "", p, nil)
 	if err != nil || s != "fromfile" {
 		t.Fatalf("got %q err %v", s, err)
 	}
-	if _, err := ReadStringInput("", "", strings.NewReader("")); err != ErrEmptyInput {
+	if _, err := ReadStringInput(nil, "", "", strings.NewReader("")); err != ErrEmptyInput {
 		t.Fatalf("want ErrEmptyInput, got %v", err)
 	}
 }
@@ -198,7 +198,7 @@ func TestWriteOutputFile(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
 	p := filepath.Join(dir, "out.bin")
-	if err := WriteOutput(p, []byte("data"), nil); err != nil {
+	if err := WriteOutput(nil, p, []byte("data"), nil); err != nil {
 		t.Fatal(err)
 	}
 	b, _ := os.ReadFile(p) // #nosec G304
@@ -210,7 +210,7 @@ func TestWriteOutputFile(t *testing.T) {
 func TestWriteOutputStdout(t *testing.T) {
 	t.Parallel()
 	var buf bytes.Buffer
-	if err := WriteOutput("", []byte("data"), &buf); err != nil {
+	if err := WriteOutput(nil, "", []byte("data"), &buf); err != nil {
 		t.Fatal(err)
 	}
 	if buf.String() != "data" {
@@ -222,7 +222,7 @@ func TestWriteOutputFailure(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
 	bad := filepath.Join(dir, "nope", "out.bin")
-	if err := WriteOutput(bad, []byte("data"), nil); err == nil {
+	if err := WriteOutput(nil, bad, []byte("data"), nil); err == nil {
 		t.Fatal("expected err")
 	}
 	// stdout write failure via closed? use bytes.Buffer always ok; test invalid path only
@@ -293,28 +293,28 @@ func TestDecodeJSONError(t *testing.T) {
 
 func TestReadInputStdinError(t *testing.T) {
 	t.Parallel()
-	if _, err := ReadInput("", errorReader{}); err == nil {
+	if _, err := ReadInput(nil, "", errorReader{}); err == nil {
 		t.Fatal("expected err")
 	}
 }
 
 func TestReadStringInputReadError(t *testing.T) {
 	t.Parallel()
-	if _, err := ReadStringInput("", "/no/such/file", nil); err == nil {
+	if _, err := ReadStringInput(nil, "", "/no/such/file", nil); err == nil {
 		t.Fatal("expected err")
 	}
 }
 
 func TestWriteOutputStdoutError(t *testing.T) {
 	t.Parallel()
-	if err := WriteOutput("", []byte("x"), errorWriter{}); err == nil {
+	if err := WriteOutput(nil, "", []byte("x"), errorWriter{}); err == nil {
 		t.Fatal("expected err")
 	}
 }
 func TestReadInputTooLargeStdin(t *testing.T) {
 	t.Parallel()
 	data := bytes.Repeat([]byte("a"), MaxInputBytes+1)
-	if _, err := ReadInput("", bytes.NewReader(data)); err == nil {
+	if _, err := ReadInput(nil, "", bytes.NewReader(data)); err == nil {
 		t.Fatal("expected err")
 	}
 }
@@ -338,7 +338,7 @@ func TestReadInputTooLargeFile(t *testing.T) {
 		written += n
 	}
 	_ = f.Close()
-	if _, err := ReadInput(p, nil); err == nil {
+	if _, err := ReadInput(nil, p, nil); err == nil {
 		t.Fatal("expected err")
 	}
 }

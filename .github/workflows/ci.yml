@@ -22,12 +22,21 @@ jobs:
         run: make build
       - name: Test
         run: make test
-      - name: Coverage
-        run: make cover
+      - name: Coverage (100% required)
+        run: make cover-check
       - name: Vet
         run: go vet ./...
+      - name: Lint
+        run: make lint
       - name: Fuzz (short)
         run: make fuzz-ci
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Image integration test
+        run: make docker-test
 
   security:
     runs-on: ubuntu-latest
